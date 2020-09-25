@@ -129,6 +129,49 @@ class MinimaxAgent(MultiAgentSearchAgent):
     Your minimax agent (question 2)
     """
 
+    def max_value(self, gameState, depth):
+        v = float("-inf")
+        best_action = None
+
+        # Generate successors
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0, action)
+            x,a = self.value(successor, depth + 1) # Recurse
+            if v < x:
+                v = x
+                best_action = action
+
+        #print(v, best_action)
+        return (v, best_action)
+
+    def min_value(self, gameState, depth):
+        v = float("inf")
+        best_action = None
+        index = depth % gameState.getNumAgents()
+
+        # Generate successors
+        for action in gameState.getLegalActions(index):
+            successor = gameState.generateSuccessor(index, action)
+            x,a = self.value(successor, depth + 1) # Recurse
+            if v > x:
+                v = x
+                best_action = action
+
+        #print(v, best_action)
+        return (v, best_action)
+
+    def value(self, gameState, depth):
+        if (gameState.isWin() or gameState.isLose() or depth == self.depth * gameState.getNumAgents()):
+            return (self.evaluationFunction(gameState), []) #tuple for score, action
+        #print("DEPTH IS",depth, "  REMAINDER IS", depth % gameState.getNumAgents())
+
+        remainder = depth % gameState.getNumAgents() # 0 iff on pacman
+        if (remainder == 0):
+            return self.max_value(gameState, depth)
+        else:
+            #run as ghost
+            return self.min_value(gameState, depth)
+
     def getAction(self, gameState):
         """
         Returns the minimax action from the current gameState using self.depth
@@ -152,8 +195,8 @@ class MinimaxAgent(MultiAgentSearchAgent):
         gameState.isLose():
         Returns whether or not the game state is a losing state
         """
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        score, action = self.value(gameState, 0)
+        return action
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """

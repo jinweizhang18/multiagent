@@ -263,6 +263,49 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
       Your expectimax agent (question 4)
     """
 
+    def max_value(self, gameState, depth):
+        v = float("-inf")
+        best_action = None
+
+        # Generate successors
+        for action in gameState.getLegalActions(0):
+            successor = gameState.generateSuccessor(0, action)
+            x,a = self.value(successor, depth + 1) # Recurse
+            if v < x:
+                v = x
+                best_action = action
+
+        #print(v, best_action)
+        return (v, best_action)
+
+    def exp_value(self, gameState, depth):
+        v = 0
+        best_action = None
+        index = depth % gameState.getNumAgents()
+
+        # Generate successors
+        for action in gameState.getLegalActions(index):
+            successor = gameState.generateSuccessor(index, action)
+            p = 1/len(gameState.getLegalActions(index))
+            x,a = self.value(successor, depth + 1) # Recurse
+            if v > x:
+                best_action = action
+            v += p * x
+        #print(v, best_action)
+        return (v, best_action)
+
+    def value(self, gameState, depth):
+        if (gameState.isWin() or gameState.isLose() or depth == self.depth * gameState.getNumAgents()):
+            return (self.evaluationFunction(gameState), []) #tuple for score, action
+        #print("DEPTH IS",depth, "  REMAINDER IS", depth % gameState.getNumAgents())
+
+        remainder = depth % gameState.getNumAgents() # 0 iff on pacman
+        if (remainder == 0):
+            return self.max_value(gameState, depth)
+        else:
+            #run as ghost
+            return self.exp_value(gameState, depth)
+
     def getAction(self, gameState):
         """
         Returns the expectimax action using self.depth and self.evaluationFunction
@@ -271,7 +314,8 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        score, action = self.value(gameState, 0)
+        return action
 
 def betterEvaluationFunction(currentGameState):
     """

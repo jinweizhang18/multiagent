@@ -91,7 +91,7 @@ class ReflexAgent(Agent):
 
         foodDist = min([manhattanDistance(newPos, foodPos) for foodPos in curFood.asList()])
 
-        return (isFood - foodDist + ghostDist)
+        return (isFood - foodDist + ghostDist/2)
 
 
 def scoreEvaluationFunction(currentGameState):

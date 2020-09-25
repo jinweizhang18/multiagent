@@ -288,8 +288,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             successor = gameState.generateSuccessor(index, action)
             p = 1/len(gameState.getLegalActions(index))
             x,a = self.value(successor, depth + 1) # Recurse
-            if v > x:
-                best_action = action
             v += p * x
         #print(v, best_action)
         return (v, best_action)

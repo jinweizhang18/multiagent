@@ -320,35 +320,42 @@ def betterEvaluationFunction(currentGameState):
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
     evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+    DESCRIPTION:
+    ghostDist = minimum distance to ghost, Incentivize high
+    pelletDist = minimum distance to power pellet, Incentivize low
+    foodDist = minimum distance to a food, Incentivize low
+    score = base score function, Incentivize high
+    timeleft = time left for scared ghosts, Incentivize high
     """
     # Useful information you can extract from a GameState (pacman.py)
-
     pos = currentGameState.getPacmanPosition()
     food = currentGameState.getFood()
+    score = currentGameState.getScore()
     pellets = currentGameState.getCapsules()
     ghostStates = currentGameState.getGhostStates()
     scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
     ghostPos = currentGameState.getGhostPositions()
 
-
     ghostDist = min([manhattanDistance(pos, ghostPos) for ghostPos in ghostPos])
     if ghostDist < 1:
-        return -9999 #
+        return -9999
 
-    # isFood = 0
-    # for foodPos in food.asList():
-    #     if newPos == foodPos:
-    #         isFood = 10
-    foodDist = 1 #incentiveze low foodDist
+    timeLeft = 0
+    for scaredTime in scaredTimes:
+        timeLeft+=scaredTime
+
     if len(food.asList()) != 0:
-        foodDist += min([manhattanDistance(pos, foodPos) for foodPos in food.asList()])
+        foodDist = min([manhattanDistance(pos, foodPos) for foodPos in food.asList()])
+    else:
+        foodDist = 0.0001
 
-    pelletDist = 1 #incentivize low pelletDist
+    # Incentivize low pelletDist
     if len(pellets) != 0:
-        pelletDist += min([manhattanDistance(pos, pelletPos) for pelletPos in pellets])
+        pelletDist = min([manhattanDistance(pos, pelletPos) for pelletPos in pellets])
+    else:
+        pelletDist = 0.001
 
-    return 20/pelletDist + 2/foodDist + ghostDist
+    return 5/pelletDist + 5/foodDist + ghostDist + score + timeLeft
 
 # Abbreviation
 better = betterEvaluationFunction

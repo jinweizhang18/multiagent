@@ -288,8 +288,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
             successor = gameState.generateSuccessor(index, action)
             p = 1/len(gameState.getLegalActions(index))
             x,a = self.value(successor, depth + 1) # Recurse
-            if v > x:
-                best_action = action
             v += p * x
         #print(v, best_action)
         return (v, best_action)
@@ -324,8 +322,33 @@ def betterEvaluationFunction(currentGameState):
 
     DESCRIPTION: <write something here so we know what you did>
     """
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # Useful information you can extract from a GameState (pacman.py)
+
+    pos = currentGameState.getPacmanPosition()
+    food = currentGameState.getFood()
+    pellets = currentGameState.getCapsules()
+    ghostStates = currentGameState.getGhostStates()
+    scaredTimes = [ghostState.scaredTimer for ghostState in ghostStates]
+    ghostPos = currentGameState.getGhostPositions()
+
+
+    ghostDist = min([manhattanDistance(pos, ghostPos) for ghostPos in ghostPos])
+    if ghostDist < 1:
+        return -9999 #
+
+    # isFood = 0
+    # for foodPos in food.asList():
+    #     if newPos == foodPos:
+    #         isFood = 10
+    foodDist = 1 #incentiveze low foodDist
+    if len(food.asList()) != 0:
+        foodDist += min([manhattanDistance(pos, foodPos) for foodPos in food.asList()])
+
+    pelletDist = 1 #incentivize low pelletDist
+    if len(pellets) != 0:
+        pelletDist += min([manhattanDistance(pos, pelletPos) for pelletPos in pellets])
+
+    return 20/pelletDist + 2/foodDist + ghostDist
 
 # Abbreviation
 better = betterEvaluationFunction
